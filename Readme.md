@@ -17,18 +17,24 @@ Dieses Skript ermittelt aus einem PDF-File Tabellen-Objekte und exportiert sie i
 
 Führen Sie das Skript mit den folgenden Parametern aus:
 
-python table_extraction.py -i <input_file> -o <output_path>
+python script.py -i <PDF-Datei> -o <Ausgabepfad> [-f <Exportformat>] [-p <Dateipräfix>]
 
+## Argumente
 
-- `<input_file>`: Pfad zur Eingabe-PDF-Datei.
-- `<output_path>`: Pfad zum Ausgabeverzeichnis, in dem die CSV-Dateien gespeichert werden.
+- i <PDF-Datei>: Pfad zur Eingabe-PDF-Datei (erforderlich).
+- o <Ausgabepfad>: Pfad, in dem die Exportdateien gespeichert werden sollen (erforderlich).
+- f <Exportformat> (optional): Das Exportformat für die Tabellen. Mögliche Werte: csv, xlsx, html, xml, json. Standardmäßig wird CSV verwendet.
+- p <Dateipräfix> (optional): Das Dateipräfix für die Exportdateien gefolgt von der identifizierten Tabellen-ID. Standardmäßig wird "expTable" verwendet.
 
 ## Beispiel
 
-python table_extraction.py -i input.pdf -o output/
+python script.py -i input.pdf -o output -f xlsx -p table
 
+Dieses Beispiel extrahiert Tabellen aus der Datei "input.pdf" und speichert sie als XLSX-Dateien mit dem Präfix "table" im Ordner "output".
 
-Dieser Befehl extrahiert Tabellen aus der Datei "input.pdf" und speichert die CSV-Dateien im Verzeichnis "output/".
+python script.py -i input.pdf -o output -f csv
+
+Dieses Beispiel extrahiert Tabellen aus der Datei "input.pdf" und speichert sie als CSV-Dateien im Ordner "output".
 
 ## Lizenz
 

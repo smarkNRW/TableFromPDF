@@ -31,7 +31,7 @@ from libCore.libHelper import * #OS Hilfsfunktionen
 
 
 #-Work-------------------------------------------------------------------------------------------------------------------------------------
-def doWork(input_file, output_path):
+def doWork(input_file, output_path, export_format, file_praefix):
     Trace ('Start Extraktion Work...')
 
     #-Lese PDF File------------------------------------
@@ -44,11 +44,27 @@ def doWork(input_file, output_path):
         df.columns = df.iloc[0]
         df = df[1:]
         tableindex +=1
-        _filesname = 'expTable'+str(tableindex)+'csv'
+        _filesname = file_praefix+str(tableindex) 
         _outputFile = os.path.join(output_path,_filesname)
         Trace(f'...schreibe Datei {_outputFile}...')
         try:
-            df.to_csv(_outputFile,sep='|')
+            if export_format =='XLSX':
+                 _outputFile +='.xlsx'
+                 df.to_excel(_outputFile)
+            elif export_format =='HTML':
+                 _outputFile +='.html'
+                 df.to_html(_outputFile)
+            elif export_format =='XML':
+                 _outputFile +='.xml'
+                 df.columns = df.columns.str.replace(' ', '_', regex=True).str.replace('[^\w\s]', '', regex=True)
+                 df.to_xml(_outputFile)
+            elif export_format =='JSON':
+                 _outputFile +='.json'
+                 with open(_outputFile, 'w') as file:
+                    df.to_json(file, force_ascii=False, orient='table')
+            else:
+                _outputFile +='.csv'
+                df.to_csv(_outputFile,sep='|')
         except Exception as e: 
             Trace(f'{e}','E')
         else:
@@ -66,13 +82,23 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         prog = config['APP_NAME'],
         description = '''Das Script ermittelt aus einem PDF File alle vorhandenen Tabellen und erzeugt entsprechende CSV-Ausgabedateien je Tabelle ''')
-    parser.add_argument('-i', dest='PFDFile', required = True, )
-    parser.add_argument('-o', dest='OutputPath', required = True, )
+    parser.add_argument('-i', dest='PFDFile', required = True, help='Pfad inkl. Dateinamen der entsprechenden PDF Datei' )
+    parser.add_argument('-o', dest='OutputPath', required = True, help='Pfad in den die Exportdateien geschrieben werden sollen' )
+    parser.add_argument('-f', dest='ExportFormat', required = False,  help='Folgende Export-Formate sind möglich (csv, xlsx, html, json, xml). Default=csv' )
+    parser.add_argument('-p', dest='OutpupFilePraefix', required = False,  help='Praefix Filename für die Export-Files gefolgt von der identifizierten Tabellen-ID' )
+    
     args = parser.parse_args()
     
     _INPUT_FILE = args.PFDFile
     _OUTPUT_PATH = args.OutputPath
+    _EXPORT_FORMAT = str(args.ExportFormat).upper()
+    _EXPORT_FILE_PREAFIX = args.OutpupFilePraefix
+    if not _EXPORT_FILE_PREAFIX:
+        _EXPORT_FILE_PREAFIX = 'expTable'
     
+    if _EXPORT_FORMAT=='NONE':
+        _EXPORT_FORMAT='CSV'
+        
     #-Prüfung Argumente-------------------------------------------------
     Trace(f'Input-File: {_INPUT_FILE}','I')
     if not OScheckDir(_INPUT_FILE):
@@ -89,7 +115,13 @@ if __name__ == '__main__':
         OSmakeDir(_OUTPUT_PATH)
         Trace('Path generated!','I')
     
-    doWork(input_file=_INPUT_FILE, output_path=_OUTPUT_PATH)
+    Trace(f'FilePraefix: {_EXPORT_FILE_PREAFIX}','I')
+    
+    Trace(f'Export-Format: {_EXPORT_FORMAT}','I')
+    if _EXPORT_FORMAT not in ('CSV','XLSX','HTML','XML','JSON'):
+        Trace(f'Export-Format not allowed!','F')
+    
+    doWork(input_file=_INPUT_FILE, output_path=_OUTPUT_PATH, export_format=_EXPORT_FORMAT, file_praefix = _EXPORT_FILE_PREAFIX)
     
     
     
