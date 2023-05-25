@@ -1,0 +1,9 @@
+{
+    "LIB_PATH": "./../../python_libs",
+    "APP_NAME": "TableFromPDF",
+    "APP_VERSION": "0.1",
+    "LOG_PATH": "/home/smark/logs/TableFromPDF.log",
+    "LOG_InformationTypes": ["I","E","W","D"],
+    "LOG_WriteOnlyToLogFile": false,
+    "PATH_SEPARATOR": "/"
+}
