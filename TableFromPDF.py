@@ -31,21 +31,21 @@ from libCore.libHelper import * #OS Hilfsfunktionen
 
 
 #-Work-------------------------------------------------------------------------------------------------------------------------------------
-def doWork(input_file, output_path, export_format, file_praefix):
+def doWork(input_file, output_path, export_format, file_prefix):
     Trace ('Start Extraktion Work...')
 
     #-Lese PDF File------------------------------------
     tables = tabula.read_pdf(input_file, pages='all')  
     Trace (f'...{ len(tables)} Tabellen wurden ermittelt...','D')
-    tableindex=0  
-    while tableindex < len(tables):
+    
+    for tableindex, df in enumerate(tables):
         Trace(f'...Ermittlung Tabelle {tableindex+1}...')
-        df = tables[tableindex]
+        
         df.columns = df.iloc[0]
         df = df[1:]
-        tableindex +=1
-        _filesname = file_praefix+str(tableindex) 
-        _outputFile = os.path.join(output_path,_filesname)
+        
+        _filename  = f'{file_prefix}{tableindex + 1}'
+        _outputFile = os.path.join(output_path,_filename )
         Trace(f'...schreibe Datei {_outputFile}...')
         try:
             if export_format =='XLSX':
@@ -85,16 +85,16 @@ if __name__ == '__main__':
     parser.add_argument('-i', dest='PFDFile', required = True, help='Pfad inkl. Dateinamen der entsprechenden PDF Datei' )
     parser.add_argument('-o', dest='OutputPath', required = True, help='Pfad in den die Exportdateien geschrieben werden sollen' )
     parser.add_argument('-f', dest='ExportFormat', required = False,  help='Folgende Export-Formate sind möglich (csv, xlsx, html, json, xml). Default=csv' )
-    parser.add_argument('-p', dest='OutpupFilePraefix', required = False,  help='Praefix Filename für die Export-Files gefolgt von der identifizierten Tabellen-ID' )
+    parser.add_argument('-p', dest='OutputFilePrefix', required = False,  help='Praefix Filename für die Export-Files gefolgt von der identifizierten Tabellen-ID' )
     
     args = parser.parse_args()
     
     _INPUT_FILE = args.PFDFile
     _OUTPUT_PATH = args.OutputPath
     _EXPORT_FORMAT = str(args.ExportFormat).upper()
-    _EXPORT_FILE_PREAFIX = args.OutpupFilePraefix
-    if not _EXPORT_FILE_PREAFIX:
-        _EXPORT_FILE_PREAFIX = 'expTable'
+    _EXPORT_FILE_PREFIX = args.OutputFilePrefix
+    if not _EXPORT_FILE_PREFIX:
+        _EXPORT_FILE_PREFIX = 'expTable'
     
     if _EXPORT_FORMAT=='NONE':
         _EXPORT_FORMAT='CSV'
@@ -115,13 +115,14 @@ if __name__ == '__main__':
         OSmakeDir(_OUTPUT_PATH)
         Trace('Path generated!','I')
     
-    Trace(f'FilePraefix: {_EXPORT_FILE_PREAFIX}','I')
+    Trace(f'FilePraefix: {_EXPORT_FILE_PREFIX}','I')
     
     Trace(f'Export-Format: {_EXPORT_FORMAT}','I')
     if _EXPORT_FORMAT not in ('CSV','XLSX','HTML','XML','JSON'):
         Trace(f'Export-Format not allowed!','F')
+        sys.exit()
     
-    doWork(input_file=_INPUT_FILE, output_path=_OUTPUT_PATH, export_format=_EXPORT_FORMAT, file_praefix = _EXPORT_FILE_PREAFIX)
+    doWork(input_file=_INPUT_FILE, output_path=_OUTPUT_PATH, export_format=_EXPORT_FORMAT, file_prefix= _EXPORT_FILE_PREFIX)
     
     
     
